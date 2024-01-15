@@ -1,4 +1,4 @@
-import path from 'path';
+import fs from 'fs';
 const express = require('express');
 const app = express();
 const bodyParser = require('body-parser');
@@ -30,9 +30,9 @@ app.get('/export_pilotage_data', async (req, res) => {
     //Potentially provide option to retrieve dates.
     try {
         const pilotageRecords = await models.PilotageInformation.findAll();
-        const outputCSV = path.join(process.cwd(),'tmp','pilotage_information.csv');
+
         const csvWriter = createCsvWriter({
-            path: outputCSV,
+            path: '/tmp/pilotage_information.csv',
             header: [
                 { id: 'pilotage_cst_dt_time', title: 'pilotage_cst_dt_time' },
                 { id: 'pilotage_nm', title: 'pilotage_nm' },
@@ -49,10 +49,11 @@ app.get('/export_pilotage_data', async (req, res) => {
         });
 
         await csvWriter.writeRecords(pilotageRecords);
+        const fileContent = fs.readFileSync('/tmp/pilotage_information.csv');
 
         res.setHeader('Content-Disposition', 'attachment; filename="pilotage_information.csv"');
         res.setHeader('Content-Type', 'text/csv');
-        res.sendFile(outputCSV, { root: '.' });
+        res.send(fileContent);
     } catch (error) {
         console.error('Error downloading CSV:', error);
         res.status(500).send('Internal Server Error');
