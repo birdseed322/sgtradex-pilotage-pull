@@ -31,7 +31,7 @@ app.get('/export_pilotage_data', async (req, res) => {
         const pilotageRecords = await models.PilotageInformation.findAll();
 
         const csvWriter = createCsvWriter({
-            path: 'pilotage_information.csv',
+            path: '/tmp/pilotage_information.csv',
             header: [
                 { id: 'pilotage_cst_dt_time', title: 'pilotage_cst_dt_time' },
                 { id: 'pilotage_nm', title: 'pilotage_nm' },
