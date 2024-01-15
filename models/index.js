@@ -10,10 +10,7 @@ const sequelize = new Sequelize(process.env.DATABASE_NAME, process.env.DATABASE_
   host: process.env.DATABASE_HOST,
   dialect: 'mysql',
   dialectModule: require('mysql2'),
-  dialectOptions: {
-    useUTC: false
-  },
-  timezone: '-08:00'
+  timezone: '+08:00'
 });
 
 const PilotageInformation = sequelize.define('PilotageInformation', {
