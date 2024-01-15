@@ -10,7 +10,7 @@
     "test": "echo \"Error: no test specified\" && exit 1",
     "devStart": "nodemon server.js",
     "start": "node server.js",
-    "vercel-build": "echo hello set TZ=Asia/Singapore"
+    "vercel-build": "echo hello"
   },
   "keywords": [],
   "author": "",
