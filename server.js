@@ -5,10 +5,13 @@ const app = express();
 const process = require('process');
 const bodyParser = require('body-parser');
 const models = require('./models');
+const moment = require('moment-timezone');
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
 const sequelize = models.sequelize;
 const createCsvWriter = require('csv-writer').createObjectCsvWriter;
+const targetTimeZone = 'Asia/Singapore';
+
 
 app.listen('3000', async () => {
     try {
@@ -93,8 +96,8 @@ app.get('/export_pilotage_data', async (req, res) => {
 
 app.post('/data/receive/pilotage_service', (req, res) => {
     const reqBody = req.body;
-    process.env.TZ = 'Singapore/Asia';
-    const now = new Date();
+    const currentDateInTargetTimeZone = moment().tz(targetTimeZone);
+    const now = currentDateInTargetTimeZone.toDate();
     const pilotageInformation = reqBody.payload;
     pilotageInformation.forEach(async (info) => {
         await models.PilotageInformation.create({
