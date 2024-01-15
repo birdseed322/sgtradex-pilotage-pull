@@ -9,7 +9,8 @@ const db = {};
 
 const sequelize = new Sequelize(process.env.DATABASE_NAME, process.env.DATABASE_USER, process.env.DATABASE_PW, {
   host: process.env.DATABASE_HOST,
-  dialect: 'mysql'
+  dialect: 'mysql',
+  dialectModule: require('mysql2'),
 });
 
 const PilotageInformation = sequelize.define('PilotageInformation', {
