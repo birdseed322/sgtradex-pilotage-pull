@@ -1,4 +1,4 @@
-import fs from 'fs';
+const fs = require('fs');
 const express = require('express');
 const app = express();
 const bodyParser = require('body-parser');
@@ -24,6 +24,35 @@ app.get('/', (req, res) => {
 
 app.get('/test', (req, res) => {
     res.send('Test');
+})
+
+app.get('/peek_db', async (req, res) => {
+    try {
+        const pilotageInfo = await models.PilotageInformation.findOne();
+        res.send(pilotageInfo);
+    } catch (e) {
+        res.send(e);
+    }
+})
+
+app.get('/hidden/destroy_db', async (req, res) => {
+    try {
+        await models.PilotageInformation.drop();
+
+        const boom = ` DB destroyed!
+          _ ._  _ , _ ._
+        (_ ' ( \`  )_  .__)
+      ( (  (    )   \`)  ) _)
+     (__ (_   (_ . _) _) ,__)
+         \`~~\`\\ ' . / \`~~\`
+              ;   ;
+              /   \\
+_____________/_ __ \\_____________
+  `;
+        res.send(boom)
+    } catch (e) {
+        res.send(e);
+    }
 })
 
 app.get('/export_pilotage_data', async (req, res) => {
@@ -92,4 +121,4 @@ app.post('/test/createTable', (req, res) => {
     }
 })
 
-export default app;
+module.exports = app;

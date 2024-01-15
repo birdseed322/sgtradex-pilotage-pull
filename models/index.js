@@ -1,16 +1,15 @@
 'use strict';
-
+require('dotenv').config()
 const path = require('path');
 const {Sequelize, DataTypes} = require('sequelize');
 const process = require('process');
 const env = process.env.NODE_ENV || 'development';
 const db = {};
 
-
 const sequelize = new Sequelize(process.env.DATABASE_NAME, process.env.DATABASE_USER, process.env.DATABASE_PW, {
   host: process.env.DATABASE_HOST,
   dialect: 'mysql',
-  dialectModule: require('mysql2'),
+   dialectModule: require('mysql2')
 });
 
 const PilotageInformation = sequelize.define('PilotageInformation', {
