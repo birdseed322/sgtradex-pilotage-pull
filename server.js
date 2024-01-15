@@ -51,7 +51,7 @@ app.get('/export_pilotage_data', async (req, res) => {
 
         res.setHeader('Content-Disposition', 'attachment; filename="pilotage_information.csv"');
         res.setHeader('Content-Type', 'text/csv');
-        res.sendFile('pilotage_information.csv', { root: '.' });
+        res.sendFile('/tmp/pilotage_information.csv', { root: '.' });
     } catch (error) {
         console.error('Error downloading CSV:', error);
         res.status(500).send('Internal Server Error');
