@@ -85,3 +85,5 @@ app.post('/test/createTable', (req, res) => {
         res.status(500);
     }
 })
+
+export default app;
