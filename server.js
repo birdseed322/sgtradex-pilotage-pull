@@ -1,6 +1,8 @@
 const fs = require('fs');
+require('dotenv').config();
 const express = require('express');
 const app = express();
+const process = require('process');
 const bodyParser = require('body-parser');
 const models = require('./models');
 app.use(bodyParser.json());
@@ -91,6 +93,7 @@ app.get('/export_pilotage_data', async (req, res) => {
 
 app.post('/data/receive/pilotage_service', (req, res) => {
     const reqBody = req.body;
+    process.env.TZ = 'Singapore/Asia';
     const now = new Date();
     const pilotageInformation = reqBody.payload;
     pilotageInformation.forEach(async (info) => {
