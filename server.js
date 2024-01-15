@@ -21,6 +21,10 @@ app.get('/', (req, res) => {
     res.send('Deployed');
 })
 
+app.get('/test', (req, res) => {
+    res.send('Test');
+})
+
 app.get('/export_pilotage_data', async (req, res) => {
     //Potentially provide option to retrieve dates.
     try {
