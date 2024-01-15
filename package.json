@@ -4,7 +4,7 @@
   "description": "Repository to perform testing for the pulling of lighterage services event data to a simlated SGTraDex client server",
   "main": "index.js",
   "engines": {
-    "node": "14.x"
+    "node": "20.x"
   },
 
   "scripts": {
