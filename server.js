@@ -78,7 +78,8 @@ app.get('/export_pilotage_data', async (req, res) => {
                 { id: 'pilotage_start_dt_time', title: 'pilotage_start_dt_time' },
                 { id: 'pilotage_end_dt_time', title: 'pilotage_end_dt_time' },
                 { id: 'verified', title: 'verified' },
-                { id: 'time_pushed', title: 'time_pushed' }
+                { id: 'time_pushed_batch', title: 'time_pushed_batch' },
+                { id: 'time_pushed_request', title: 'time_pushed_request' },
             ],
         });
 
@@ -99,12 +100,16 @@ app.post('/data/receive/pilotage_service', async (req, res) => {
         const reqBody = req.body;
         const currentDateInTargetTimeZone = moment().tz(targetTimeZone);
         const now = currentDateInTargetTimeZone.toDate();
+        let batchTime = new Date(now);
+        batchTime = batchTime.setSeconds(0);
+        const offSetMin = batchTime.getMinutes();
+        batchTime = batchTime.setMinutes(offSetMin - (offSetMin % 30));
         const pilotageInformation = reqBody.payload;
 
         // Extract unique keys for checking existence
         const uniqueKeys = pilotageInformation.map(info => ({
-            pilotage_cst_dt_time: new Date(info.pilotage_cst_dt_time),
-            pilotage_imo: info.pilotage_imo,
+            time_pushed_batch: batchTime,
+            pilotage_nm: info.pilotage_nm,
         }));
 
         // Check for existing records
@@ -116,16 +121,16 @@ app.post('/data/receive/pilotage_service', async (req, res) => {
 
         // Extract existing keys for quick lookup
         const existingKeys = existingRecords.map(record => ({
-            pilotage_cst_dt_time: record.pilotage_cst_dt_time,
-            pilotage_imo: record.pilotage_imo,
+            time_pushed_batch: record.time_pushed_batch,
+            pilotage_nm: record.pilotage_nm,
         }));
 
         // Use Promise.all to wait for all create operations to complete
         await Promise.all(pilotageInformation.map(async (info) => {
             // Check if the record already exists
             const key = {
-                pilotage_cst_dt_time: new Date(info.pilotage_cst_dt_time),
-                pilotage_imo: info.pilotage_imo,
+                time_pushed_batch: batchTime,
+                pilotage_nm: info.pilotage_nm,
             };
 
             if (!existingKeys.find(existingKey => lodash.isEqual(existingKey, key))) {
@@ -136,12 +141,13 @@ app.post('/data/receive/pilotage_service', async (req, res) => {
                     pilotage_imo: info.pilotage_imo,
                     pilotage_loc_from_code: info.pilotage_loc_from_code,
                     pilotage_loc_to_code: info.pilotage_loc_to_code,
-                    pilotage_arrival_dt_time: info.pilotage_arrival_dt_time,
-                    pilotage_onboard_dt_time: info.pilotage_onboard_dt_time,
-                    pilotage_start_dt_time: info.pilotage_start_dt_time,
-                    pilotage_end_dt_time: info.pilotage_end_dt_time,
+                    pilotage_arrival_dt_time: new Date(info.pilotage_arrival_dt_time),
+                    pilotage_onboard_dt_time: new Date(info.pilotage_onboard_dt_time),
+                    pilotage_start_dt_time: new Date(info.pilotage_start_dt_time),
+                    pilotage_end_dt_time: new Date(info.pilotage_end_dt_time),
                     verified: "NOT APPLICABLE",
-                    time_pushed: now,
+                    time_pushed_batch: batchTime,
+                    time_pushed_request: now,
                 });
                 console.log("Saved");
             } else {

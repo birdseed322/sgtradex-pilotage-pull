@@ -55,7 +55,10 @@ const PilotageInformation = sequelize.define('PilotageInformation', {
   verified: {
     type: DataTypes.STRING, // You might want to use BOOLEAN if it represents a true/false value
     allowNull: false,
-  }, time_pushed: {
+  }, time_pushed_batch: {
+    type: DataTypes.DATE,
+    allowNull: false
+  }, time_pushed_request: {
     type: DataTypes.DATE,
     allowNull: false
   },
