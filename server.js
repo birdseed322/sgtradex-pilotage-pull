@@ -94,6 +94,7 @@ app.get('/export_pilotage_data', async (req, res) => {
 })
 
 app.post('/data/receive/pilotage_service', async (req, res) => {
+    const transaction = await models.sequelize.transaction();
     try {
         const reqBody = req.body;
         const currentDateInTargetTimeZone = moment().tz(targetTimeZone);
@@ -114,7 +115,7 @@ app.post('/data/receive/pilotage_service', async (req, res) => {
                 pilotage_end_dt_time: info.pilotage_end_dt_time,
                 verified: "NOT APPLICABLE",
                 time_pushed: now,
-            });
+            }, { transaction });
             console.log("Saved");
         }));
 
