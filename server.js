@@ -94,7 +94,6 @@ app.get('/export_pilotage_data', async (req, res) => {
 })
 
 app.post('/data/receive/pilotage_service', async (req, res) => {
-    const transaction = await models.db.sequelize.transaction();
     try {
         const reqBody = req.body;
         const currentDateInTargetTimeZone = moment().tz(targetTimeZone);
@@ -103,26 +102,33 @@ app.post('/data/receive/pilotage_service', async (req, res) => {
 
         // Use Promise.all to wait for all create operations to complete
         await Promise.all(pilotageInformation.map(async (info) => {
-            await models.PilotageInformation.create({
-                pilotage_cst_dt_time: new Date(info.pilotage_cst_dt_time),
-                pilotage_nm: info.pilotage_nm,
-                pilotage_imo: info.pilotage_imo,
-                pilotage_loc_from_code: info.pilotage_loc_from_code,
-                pilotage_loc_to_code: info.pilotage_loc_to_code,
-                pilotage_arrival_dt_time: info.pilotage_arrival_dt_time,
-                pilotage_onboard_dt_time: info.pilotage_onboard_dt_time,
-                pilotage_start_dt_time: info.pilotage_start_dt_time,
-                pilotage_end_dt_time: info.pilotage_end_dt_time,
-                verified: "NOT APPLICABLE",
-                time_pushed: now,
-            }, { transaction });
+            const existingRecord = await models.PilotageInformation.findOne({
+                where: {
+                    pilotage_cst_dt_time: new Date(info.pilotage_cst_dt_time),
+                    pilotage_imo: info.pilotage_imo,
+                },
+            });
+
+            if (!existingRecord) {
+                await models.PilotageInformation.create({
+                    pilotage_cst_dt_time: new Date(info.pilotage_cst_dt_time),
+                    pilotage_nm: info.pilotage_nm,
+                    pilotage_imo: info.pilotage_imo,
+                    pilotage_loc_from_code: info.pilotage_loc_from_code,
+                    pilotage_loc_to_code: info.pilotage_loc_to_code,
+                    pilotage_arrival_dt_time: info.pilotage_arrival_dt_time,
+                    pilotage_onboard_dt_time: info.pilotage_onboard_dt_time,
+                    pilotage_start_dt_time: info.pilotage_start_dt_time,
+                    pilotage_end_dt_time: info.pilotage_end_dt_time,
+                    verified: "NOT APPLICABLE",
+                    time_pushed: now,
+                });
+            }
             console.log("Saved");
         }));
-        await transaction.commit();
         res.send('Received');
     } catch (error) {
         console.error('Error:', error);
-        await transaction.rollback()
         res.status(500).send('Internal Server Error');
     }
 });
