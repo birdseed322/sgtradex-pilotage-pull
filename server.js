@@ -11,6 +11,7 @@ app.use(bodyParser.urlencoded({ extended: true }));
 const sequelize = models.sequelize;
 const createCsvWriter = require('csv-writer').createObjectCsvWriter;
 const targetTimeZone = 'Asia/Singapore';
+const lodash = require('lodash');
 
 
 app.listen('3000', async () => {
@@ -127,7 +128,7 @@ app.post('/data/receive/pilotage_service', async (req, res) => {
                 pilotage_imo: info.pilotage_imo,
             };
 
-            if (!existingKeys.find(existingKey => isEqual(existingKey, key))) {
+            if (!existingKeys.find(existingKey => lodash.isEqual(existingKey, key))) {
                 // If record doesn't exist, create it
                 await models.PilotageInformation.create({
                     pilotage_cst_dt_time: new Date(info.pilotage_cst_dt_time),
