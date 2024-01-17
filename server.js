@@ -100,16 +100,35 @@ app.post('/data/receive/pilotage_service', async (req, res) => {
         const now = currentDateInTargetTimeZone.toDate();
         const pilotageInformation = reqBody.payload;
 
+        // Extract unique keys for checking existence
+        const uniqueKeys = pilotageInformation.map(info => ({
+            pilotage_cst_dt_time: new Date(info.pilotage_cst_dt_time),
+            pilotage_imo: info.pilotage_imo,
+        }));
+
+        // Check for existing records
+        const existingRecords = await models.PilotageInformation.findAll({
+            where: {
+                [Op.or]: uniqueKeys,
+            },
+        });
+
+        // Extract existing keys for quick lookup
+        const existingKeys = existingRecords.map(record => ({
+            pilotage_cst_dt_time: record.pilotage_cst_dt_time,
+            pilotage_imo: record.pilotage_imo,
+        }));
+
         // Use Promise.all to wait for all create operations to complete
         await Promise.all(pilotageInformation.map(async (info) => {
-            const existingRecord = await models.PilotageInformation.findOne({
-                where: {
-                    pilotage_cst_dt_time: new Date(info.pilotage_cst_dt_time),
-                    pilotage_imo: info.pilotage_imo,
-                },
-            });
+            // Check if the record already exists
+            const key = {
+                pilotage_cst_dt_time: new Date(info.pilotage_cst_dt_time),
+                pilotage_imo: info.pilotage_imo,
+            };
 
-            if (!existingRecord) {
+            if (!existingKeys.find(existingKey => isEqual(existingKey, key))) {
+                // If record doesn't exist, create it
                 await models.PilotageInformation.create({
                     pilotage_cst_dt_time: new Date(info.pilotage_cst_dt_time),
                     pilotage_nm: info.pilotage_nm,
@@ -123,15 +142,19 @@ app.post('/data/receive/pilotage_service', async (req, res) => {
                     verified: "NOT APPLICABLE",
                     time_pushed: now,
                 });
+                console.log("Saved");
+            } else {
+                console.log("Record already exists. Skipped.");
             }
-            console.log("Saved");
         }));
+
         res.send('Received');
     } catch (error) {
         console.error('Error:', error);
         res.status(500).send('Internal Server Error');
     }
 });
+
 
 
 app.post('/test/createTable', (req, res) => {
