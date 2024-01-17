@@ -109,7 +109,7 @@ app.post('/data/receive/pilotage_service', async (req, res) => {
         // Check for existing records
         const existingRecords = await models.PilotageInformation.findAll({
             where: {
-                [Op.or]: uniqueKeys,
+                [models.db.Op.or]: uniqueKeys,
             },
         });
 

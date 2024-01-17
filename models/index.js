@@ -1,7 +1,7 @@
 'use strict';
 require('dotenv').config()
 const path = require('path');
-const { Sequelize, DataTypes } = require('sequelize');
+const { Sequelize, DataTypes, Op } = require('sequelize');
 const process = require('process');
 const env = process.env.NODE_ENV || 'development';
 const db = {};
@@ -67,5 +67,5 @@ PilotageInformation.sync({ alter: true })
 
 db.sequelize = sequelize;
 db.Sequelize = Sequelize;
-
+db.Op = Op
 module.exports = { db, PilotageInformation };
