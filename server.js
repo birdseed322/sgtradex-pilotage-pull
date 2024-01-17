@@ -64,15 +64,6 @@ app.get('/export_pilotage_data', async (req, res) => {
     //Potentially provide option to retrieve dates.
     try {
         const pilotageRecords = await models.PilotageInformation.findAll();
-        //Perform some preprocessing to convert UTC date obj into specific date time string lol
-        const processedRecords = pilotageRecords.map(record => {
-            // Example post-processing: Convert date to a different format
-            record.pilotage_cst_dt_time = formatDate(record.pilotage_cst_dt_time);
-
-            // Add more post-processing logic as needed...
-
-            return record;
-        });
         const csvWriter = createCsvWriter({
             path: '/tmp/pilotage_information.csv',
             header: [
