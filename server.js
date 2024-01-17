@@ -101,9 +101,9 @@ app.post('/data/receive/pilotage_service', async (req, res) => {
         const currentDateInTargetTimeZone = moment().tz(targetTimeZone);
         const now = currentDateInTargetTimeZone.toDate();
         let batchTime = new Date(now);
-        batchTime = batchTime.setSeconds(0);
-        const offSetMin = batchTime.getMinutes();
-        batchTime = batchTime.setMinutes(offSetMin - (offSetMin % 30));
+        batchTime.setSeconds(0);
+        let offSetMin = batchTime.getMinutes();
+        batchTime.setMinutes(offSetMin - (offSetMin % 30));
         const pilotageInformation = reqBody.payload;
 
         // Extract unique keys for checking existence
