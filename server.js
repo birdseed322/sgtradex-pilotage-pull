@@ -64,7 +64,15 @@ app.get('/export_pilotage_data', async (req, res) => {
     //Potentially provide option to retrieve dates.
     try {
         const pilotageRecords = await models.PilotageInformation.findAll();
+        //Perform some preprocessing to convert UTC date obj into specific date time string lol
+        const processedRecords = pilotageRecords.map(record => {
+            // Example post-processing: Convert date to a different format
+            record.pilotage_cst_dt_time = formatDate(record.pilotage_cst_dt_time);
 
+            // Add more post-processing logic as needed...
+
+            return record;
+        });
         const csvWriter = createCsvWriter({
             path: '/tmp/pilotage_information.csv',
             header: [
@@ -78,7 +86,7 @@ app.get('/export_pilotage_data', async (req, res) => {
                 { id: 'pilotage_start_dt_time', title: 'pilotage_start_dt_time' },
                 { id: 'pilotage_end_dt_time', title: 'pilotage_end_dt_time' },
                 { id: 'verified', title: 'verified' },
-                { id: 'time_pushed', title: 'time_pushed'}
+                { id: 'time_pushed', title: 'time_pushed' }
             ],
         });
 
@@ -94,29 +102,38 @@ app.get('/export_pilotage_data', async (req, res) => {
     }
 })
 
-app.post('/data/receive/pilotage_service', (req, res) => {
-    const reqBody = req.body;
-    const currentDateInTargetTimeZone = moment().tz(targetTimeZone);
-    const now = currentDateInTargetTimeZone.toDate();
-    const pilotageInformation = reqBody.payload;
-    pilotageInformation.forEach(async (info) => {
-        await models.PilotageInformation.create({
-            pilotage_cst_dt_time: new Date(info.pilotage_cst_dt_time),
-            pilotage_nm: info.pilotage_nm,
-            pilotage_imo: info.pilotage_imo,
-            pilotage_loc_from_code: info.pilotage_loc_from_code,
-            pilotage_loc_to_code: info.pilotage_loc_to_code,
-            pilotage_arrival_dt_time: info.pilotage_arrival_dt_time,
-            pilotage_onboard_dt_time: info.pilotage_onboard_dt_time,
-            pilotage_start_dt_time: info.pilotage_start_dt_time,
-            pilotage_end_dt_time: info.pilotage_end_dt_time,
-            verified: "NOT APPLICABLE",
-            time_pushed: now
-        });
-        console.log("Saved")
-    })
-    res.send('Received');
-})
+app.post('/data/receive/pilotage_service', async (req, res) => {
+    try {
+        const reqBody = req.body;
+        const currentDateInTargetTimeZone = moment().tz(targetTimeZone);
+        const now = currentDateInTargetTimeZone.toDate();
+        const pilotageInformation = reqBody.payload;
+
+        // Use Promise.all to wait for all create operations to complete
+        await Promise.all(pilotageInformation.map(async (info) => {
+            await models.PilotageInformation.create({
+                pilotage_cst_dt_time: new Date(info.pilotage_cst_dt_time),
+                pilotage_nm: info.pilotage_nm,
+                pilotage_imo: info.pilotage_imo,
+                pilotage_loc_from_code: info.pilotage_loc_from_code,
+                pilotage_loc_to_code: info.pilotage_loc_to_code,
+                pilotage_arrival_dt_time: info.pilotage_arrival_dt_time,
+                pilotage_onboard_dt_time: info.pilotage_onboard_dt_time,
+                pilotage_start_dt_time: info.pilotage_start_dt_time,
+                pilotage_end_dt_time: info.pilotage_end_dt_time,
+                verified: "NOT APPLICABLE",
+                time_pushed: now,
+            });
+            console.log("Saved");
+        }));
+
+        res.send('Received');
+    } catch (error) {
+        console.error('Error:', error);
+        res.status(500).send('Internal Server Error');
+    }
+});
+
 
 app.post('/test/createTable', (req, res) => {
     try {
