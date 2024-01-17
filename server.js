@@ -121,7 +121,7 @@ app.post('/data/receive/pilotage_service', async (req, res) => {
 
         // Extract existing keys for quick lookup
         const existingKeys = existingRecords.map(record => ({
-            time_pushed_batch: record.time_pushed_batch,
+            time_pushed_batch: new Date(record.time_pushed_batch),
             pilotage_nm: record.pilotage_nm,
         }));
 
@@ -133,7 +133,7 @@ app.post('/data/receive/pilotage_service', async (req, res) => {
                 pilotage_nm: info.pilotage_nm,
             };
 
-            if (!existingKeys.find(existingKey => lodash.isEqual(existingKey, key))) {
+            if (!existingKeys.find(existingKey => existingKey.time_pushed_batch.toUTCString() == key.time_pushed_batch.toUTCString() && existingKey.pilotage_nm == key.pilotage_nm)) {
                 // If record doesn't exist, create it
                 await models.PilotageInformation.create({
                     pilotage_cst_dt_time: new Date(info.pilotage_cst_dt_time),
