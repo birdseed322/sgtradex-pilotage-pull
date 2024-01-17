@@ -94,7 +94,7 @@ app.get('/export_pilotage_data', async (req, res) => {
 })
 
 app.post('/data/receive/pilotage_service', async (req, res) => {
-    const transaction = await models.sequelize.transaction();
+    const transaction = await models.db.sequelize.transaction();
     try {
         const reqBody = req.body;
         const currentDateInTargetTimeZone = moment().tz(targetTimeZone);
@@ -122,6 +122,7 @@ app.post('/data/receive/pilotage_service', async (req, res) => {
         res.send('Received');
     } catch (error) {
         console.error('Error:', error);
+        transaction.rollback()
         res.status(500).send('Internal Server Error');
     }
 });
