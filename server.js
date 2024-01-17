@@ -118,7 +118,7 @@ app.post('/data/receive/pilotage_service', async (req, res) => {
             }, { transaction });
             console.log("Saved");
         }));
-
+        transaction.commit();
         res.send('Received');
     } catch (error) {
         console.error('Error:', error);
