@@ -106,7 +106,7 @@ app.post('/data/receive/pilotage_service', async (req, res) => {
         batchTime.setMinutes(offSetMin - (offSetMin % 30));
         const pilotageInformation = reqBody.payload;
 
-        // Extract unique keys for checking existence
+        // Extract unique keys for checking existence. Assumes no duplicate unique keys
         const uniqueKeys = pilotageInformation.map(info => ({
             time_pushed_batch: batchTime,
             pilotage_nm: info.pilotage_nm,
@@ -125,6 +125,8 @@ app.post('/data/receive/pilotage_service', async (req, res) => {
             pilotage_nm: record.pilotage_nm,
         }));
 
+        const existingKeySet = new Set();
+
         // Use Promise.all to wait for all create operations to complete
         await Promise.all(pilotageInformation.map(async (info) => {
             // Check if the record already exists
@@ -133,7 +135,10 @@ app.post('/data/receive/pilotage_service', async (req, res) => {
                 pilotage_nm: info.pilotage_nm,
             };
 
-            if (!existingKeys.find(existingKey => existingKey.time_pushed_batch.toUTCString() == key.time_pushed_batch.toUTCString() && existingKey.pilotage_nm == key.pilotage_nm)) {
+            const keyString = JSON.stringify(key);
+
+            if ((!existingKeys.find(existingKey => existingKey.time_pushed_batch.toUTCString() == key.time_pushed_batch.toUTCString() && existingKey.pilotage_nm == key.pilotage_nm) && (!existingKeySet.has(keyString)))) {
+                existingKeySet.add(keyString);
                 // If record doesn't exist, create it
                 await models.PilotageInformation.create({
                     pilotage_cst_dt_time: new Date(info.pilotage_cst_dt_time),
