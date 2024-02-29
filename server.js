@@ -78,6 +78,7 @@ app.get('/export_pilotage_data', async (req, res) => {
                 { id: 'pilotage_start_dt_time', title: 'pilotage_start_dt_time' },
                 { id: 'pilotage_end_dt_time', title: 'pilotage_end_dt_time' },
                 { id: 'verified', title: 'verified' },
+                { id: 'request_id', title: 'request_id' },
                 { id: 'time_pushed_batch', title: 'time_pushed_batch' },
                 { id: 'time_pushed_request', title: 'time_pushed_request' },
             ],
