@@ -1,0 +1,5 @@
+Behavior of pitstop to source system
+
+- When large amounts of data is pushed to the pitstop, the pitstop may break the data into multiple post requests to forward to the source system
+- Due to network and processing delay in the pitstop, source system can expect some delay when data is pushed to the pitstop
+- There are retry mechanisms inplace in pitstop, such that failed requests can be expected to be resent to the source system, therefore the source system should have adequate error handling to fully benefit from the pitstop
