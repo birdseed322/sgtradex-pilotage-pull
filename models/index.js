@@ -61,6 +61,9 @@ const PilotageInformation = sequelize.define('PilotageInformation', {
   }, time_pushed_request: {
     type: DataTypes.DATE,
     allowNull: false
+  }, request_id: {
+    type: DataTypes.STRING,
+    allowNull: false
   },
 }, {
   freezeTableName: true

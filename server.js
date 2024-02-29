@@ -104,6 +104,7 @@ app.post('/data/receive/pilotage_service', async (req, res) => {
         batchTime.setSeconds(0);
         let offSetMin = batchTime.getMinutes();
         batchTime.setMinutes(offSetMin - (offSetMin % 30));
+        const reqId = reqBody.participants[0].request_id
         const pilotageInformation = reqBody.payload;
 
         // Extract unique keys for checking existence. Assumes no duplicate unique keys
@@ -153,6 +154,7 @@ app.post('/data/receive/pilotage_service', async (req, res) => {
                     verified: "NOT APPLICABLE",
                     time_pushed_batch: batchTime,
                     time_pushed_request: now,
+                    request_id: reqId
                 });
                 console.log("Saved");
             } else {
