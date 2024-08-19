@@ -1,4 +1,5 @@
 const fs = require('fs');
+const path = require('path');
 require('dotenv').config();
 const express = require('express');
 const app = express();
@@ -32,7 +33,7 @@ app.get('/test', (req, res) => {
     res.send('Test');
 })
 
-app.get('/peek_db', async (req, res) => {
+app.get('/pilotage/peek_db', async (req, res) => {
     try {
         const pilotageInfo = await models.PilotageInformation.findOne();
         res.send(pilotageInfo);
@@ -41,9 +42,20 @@ app.get('/peek_db', async (req, res) => {
     }
 })
 
+
+app.get('/haulier/peek_db', async (req, res) => {
+    try {
+        const gpsInfo = await models.HaulierGPS.findOne();
+        res.send(gpsInfo);
+    } catch (e) {
+        res.send(e);
+    }
+})
+
 app.get('/hidden/destroy_db', async (req, res) => {
     try {
         await models.PilotageInformation.drop();
+        await models.HaulierGPS.drop();
 
         const boom = ` DB destroyed!
           _ ._  _ , _ ._
@@ -61,12 +73,13 @@ _____________/_ __ \\_____________
     }
 })
 
-app.get('/export_pilotage_data', async (req, res) => {
+app.get('/export/pilotage_data', async (req, res) => {
     //Potentially provide option to retrieve dates.
     try {
         const pilotageRecords = await models.PilotageInformation.findAll();
+        const csvFilePath = path.join('tmp', 'pilotage_information.csv');
         const csvWriter = createCsvWriter({
-            path: '/tmp/pilotage_information.csv',
+            path: csvFilePath,
             header: [
                 { id: 'pilotage_cst_dt_time', title: 'pilotage_cst_dt_time' },
                 { id: 'pilotage_nm', title: 'pilotage_nm' },
@@ -85,9 +98,43 @@ app.get('/export_pilotage_data', async (req, res) => {
         });
 
         await csvWriter.writeRecords(pilotageRecords);
-        const fileContent = fs.readFileSync('/tmp/pilotage_information.csv');
+        const fileContent = fs.readFileSync(csvFilePath);
 
         res.setHeader('Content-Disposition', 'attachment; filename="pilotage_information.csv"');
+        res.setHeader('Content-Type', 'text/csv');
+        res.send(fileContent);
+    } catch (error) {
+        console.error('Error downloading CSV:', error);
+        res.status(500).send('Internal Server Error');
+    }
+})
+
+
+app.get('/export/haulier_data', async (req, res) => {
+    try {
+        const haulierRecords = await models.HaulierGPS.findAll();
+        const csvFilePath = path.join('tmp', 'haulier_information.csv');
+        const csvWriter = createCsvWriter({
+            path: csvFilePath,
+            header: [
+                { id: 'haulier_nm', title: 'haulier_nm' },
+                { id: 'position_latitude', title: 'position_latitude' },
+                { id: 'position_longitude', title: 'position_longitude' },
+                { id: 'heading', title: 'heading' },
+                { id: 'haulier_uen', title: 'haulier_uen' },
+                { id: 'geofence_of_interest', title: 'geofence_of_interest' },
+                { id: 'vehicle_speed', title: 'vehicle_speed' },
+                { id: 'vehicle_no', title: 'vehicle_no' },
+                { id: 'position_altitude', title: 'position_altitude' },
+                { id: 'snapshot_dt', title: 'snapshot_dt' },
+                { id: 'time_pushed_request', title: 'time_pushed_request' },
+            ],
+        });
+
+        await csvWriter.writeRecords(haulierRecords);
+        const fileContent = fs.readFileSync(csvFilePath);
+
+        res.setHeader('Content-Disposition', 'attachment; filename="haulier_information.csv"');
         res.setHeader('Content-Type', 'text/csv');
         res.send(fileContent);
     } catch (error) {
@@ -163,6 +210,39 @@ app.post('/data/receive/pilotage_service', async (req, res) => {
             }
         }));
 
+        res.send('Received');
+    } catch (error) {
+        console.error('Error:', error);
+        res.status(500).send('Internal Server Error');
+    }
+});
+
+
+app.post('/data/receive/haulier_gps', async (req, res) => {
+    try {
+        const reqBody = req.body;
+        console.log(req.body)
+        const currentDateInTargetTimeZone = moment().tz(targetTimeZone);
+        const now = currentDateInTargetTimeZone.toDate();
+        let batchTime = new Date(now);
+        batchTime.setSeconds(0);
+        const haulierGPS = reqBody.payload;
+        Promise.all(haulierGPS.map(async (info) => {
+            await models.HaulierGPS.create({
+                haulier_nm: info.haulier_nm,
+                position_latitude: info.position_latitude,
+                position_longitude: info.position_longitude,
+                heading:info.heading,
+                haulier_uen: info.haulier_uen,
+                geofence_of_interest: info.geofence_of_interest,
+                vehicle_speed: info.vehicle_speed,
+                vehicle_no: info.vehicle_no,
+                position_altitude: info.position_altitude,
+                snapshot_dt: info.snapshot_dt,
+                time_pushed_request: batchTime
+            });
+            console.log("Saved");
+        }));
         res.send('Received');
     } catch (error) {
         console.error('Error:', error);

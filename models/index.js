@@ -15,6 +15,55 @@ const sequelize = new Sequelize(process.env.DATABASE_NAME, process.env.DATABASE_
   }
 });
 
+const HaulierGPS = sequelize.define('HaulierGPS', {
+  haulier_nm: {
+    type: DataTypes.STRING,
+    allowNull: true
+  },
+  position_latitude: {
+    type: DataTypes.DOUBLE,
+    allowNull: true
+  },
+  position_longitude: {
+    type: DataTypes.DOUBLE,
+    allowNull: true
+  },
+  heading: {
+    type: DataTypes.INTEGER,
+    allowNull: true
+  },
+  haulier_uen: {
+    type: DataTypes.STRING,
+    allowNull: true
+  },
+  geofence_of_interest: {
+    type: DataTypes.STRING,
+    allowNull: true
+  },
+  vehicle_speed: {
+    type: DataTypes.FLOAT,
+    allowNull: true
+  },
+  vehicle_no: {
+    type: DataTypes.STRING,
+    allowNull: true
+  },
+  position_altitude: {
+    type: DataTypes.INTEGER,
+    allowNull: true
+  },
+  snapshot_dt: {
+    type:DataTypes.DATE,
+    allowNull: false
+  },
+  time_pushed_request: {
+    type: DataTypes.DATE,
+    allowNull: false
+  },
+}, {
+  freezeTableName: true
+})
+
 const PilotageInformation = sequelize.define('PilotageInformation', {
   pilotage_cst_dt_time: {
     type: DataTypes.DATE,
@@ -69,9 +118,10 @@ const PilotageInformation = sequelize.define('PilotageInformation', {
   freezeTableName: true
 })
 
+HaulierGPS.sync({ alter: true })
 PilotageInformation.sync({ alter: true })
 
 db.sequelize = sequelize;
 db.Sequelize = Sequelize;
 db.Op = Op
-module.exports = { db, PilotageInformation };
+module.exports = { db, PilotageInformation, HaulierGPS};

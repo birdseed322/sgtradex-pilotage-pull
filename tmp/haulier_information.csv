@@ -1,0 +1,3 @@
+haulier_nm,position_latitude,position_longitude,heading,haulier_uen,geofence_of_interest,vehicle_speed,vehicle_no,position_altitude,snapshot_dt,time_pushed_request
+THONG LEE,1.3179528,103.7484265,283,198200775K,,0,XE9166K,0,Mon Aug 19 2024 09:21:16 GMT+0800 (Singapore Standard Time),Mon Aug 19 2024 10:28:00 GMT+0800 (Singapore Standard Time)
+OCTAGLOBA,1.3072436,103.7524686,46,201832064Z,,0,XE3680G,0,Mon Aug 19 2024 09:21:16 GMT+0800 (Singapore Standard Time),Mon Aug 19 2024 10:28:00 GMT+0800 (Singapore Standard Time)
