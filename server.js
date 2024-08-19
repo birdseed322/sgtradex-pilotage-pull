@@ -117,6 +117,7 @@ app.get('/export/haulier_data', async (req, res) => {
         const csvWriter = createCsvWriter({
             path: csvFilePath,
             header: [
+                { id: 'request_id', title: 'request_id' },
                 { id: 'haulier_nm', title: 'haulier_nm' },
                 { id: 'position_latitude', title: 'position_latitude' },
                 { id: 'position_longitude', title: 'position_longitude' },
@@ -239,7 +240,8 @@ app.post('/data/receive/haulier_gps', async (req, res) => {
                 vehicle_no: info.vehicle_no,
                 position_altitude: info.position_altitude,
                 snapshot_dt: info.snapshot_dt,
-                time_pushed_request: batchTime
+                time_pushed_request: batchTime,
+                request_id: reqBody['participants'][0]['request_id']
             });
             console.log("Saved");
         }));

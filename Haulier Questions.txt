@@ -1,0 +1,3 @@
+Clarifications regarding Haulier GPS data
+- From observation, Haulio is pushing data around every 40 seconds
+- Is there a way to batch the GPS data as it is coming in? Currently 1 request is 1 truck

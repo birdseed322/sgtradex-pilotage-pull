@@ -20,6 +20,10 @@ const HaulierGPS = sequelize.define('HaulierGPS', {
     type: DataTypes.STRING,
     allowNull: true
   },
+  request_id: {
+    type: DataTypes.STRING,
+    allowNull: false
+  },
   position_latitude: {
     type: DataTypes.DOUBLE,
     allowNull: true
