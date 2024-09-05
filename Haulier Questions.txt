@@ -1,3 +1,6 @@
 Clarifications regarding Haulier GPS data
 - From observation, Haulio is pushing data around every 40 seconds
 - Is there a way to batch the GPS data as it is coming in? Currently 1 request is 1 truck
+- Appear to have duplicte data being sent from pitstop. Different request ID but same data.
+- Tracking of each vehicle is a little erratic, interval is not really fixed, what determines when the haulier pushes gps data
+- Pull lat long data must have 6dp
